@@ -1,0 +1,1 @@
+export { SyncFormatEdittextView } from './SyncFormatEdittextView';
