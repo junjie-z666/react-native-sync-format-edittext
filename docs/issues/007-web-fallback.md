@@ -1,4 +1,4 @@
-# Issue 7: Web fallback
+# Issue 7: Web fallback ✅
 
 ## What to build
 
@@ -6,9 +6,9 @@
 
 ## Acceptance criteria
 
-- [ ] Web 平台不崩溃，渲染一个基本元素
-- [ ] 接受和 native 组件相同的 props 接口
-- [ ] TypeScript 类型导出和 native 组件一致
+- [x] Web 平台不崩溃，渲染一个基本元素
+- [x] 接受和 native 组件相同的 props 接口
+- [x] TypeScript 类型导出和 native 组件一致
 
 ## Blocked by
 

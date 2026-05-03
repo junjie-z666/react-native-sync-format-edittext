@@ -1,4 +1,4 @@
-# Issue 8: Example app 验证
+# Issue 8: Example app 验证 ✅
 
 ## What to build
 
@@ -6,11 +6,11 @@
 
 ## Acceptance criteria
 
-- [ ] example app 中输入电话号码，自动格式化为 "138-1234-5678" 格式
-- [ ] 输入过程中无闪烁（未格式化文本不闪现）
-- [ ] 光标位置正确
-- [ ] placeholder 和 color 正常显示
-- [ ] 快速连续输入无异常
+- [x] example app 中输入电话号码，自动格式化为 "138-1234-5678" 格式
+- [x] 输入过程中无闪烁（未格式化文本不闪现）
+- [x] 光标位置正确
+- [x] placeholder 和 color 正常显示
+- [x] 快速连续输入无异常
 
 ## Blocked by
 

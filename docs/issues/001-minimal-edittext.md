@@ -1,4 +1,4 @@
-# Issue 1: 最小可渲染 EditText
+# Issue 1: 最小可渲染 EditText ✅
 
 ## What to build
 
@@ -6,10 +6,10 @@
 
 ## Acceptance criteria
 
-- [ ] SyncFormatEditextView 继承 AppCompatEditText（不是 android.view.View）
-- [ ] example app 中渲染出一个可输入的 EditText
-- [ ] 支持标准 View style props（width, height 等）
-- [ ] codegen 正常生成，无编译错误
+- [x] SyncFormatEditextView 继承 AppCompatEditText（不是 android.view.View）
+- [x] example app 中渲染出一个可输入的 EditText
+- [x] 支持标准 View style props（width, height 等）
+- [x] codegen 正常生成，无编译错误
 
 ## Blocked by
 

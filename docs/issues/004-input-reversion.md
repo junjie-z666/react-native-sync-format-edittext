@@ -1,4 +1,4 @@
-# Issue 4: 输入回退防闪烁
+# Issue 4: 输入回退防闪烁 ✅
 
 ## What to build
 
@@ -6,11 +6,11 @@
 
 ## Acceptance criteria
 
-- [ ] 用户输入后，EditText 不显示未格式化的原始文本
-- [ ] 用户输入后，EditText 显示上次格式化结果（或空字符串首次输入时）
-- [ ] JS 格式化后 value 回写，EditText 更新为格式化后的文本
-- [ ] `Editable.replace()` 不会递归触发 TextWatcher（isReverted flag 防护）
-- [ ] 快速连续输入时，回退逻辑正确，不会丢失输入
+- [x] 用户输入后，EditText 不显示未格式化的原始文本
+- [x] 用户输入后，EditText 显示上次格式化结果（或空字符串首次输入时）
+- [x] JS 格式化后 value 回写，EditText 更新为格式化后的文本
+- [x] `Editable.replace()` 不会递归触发 TextWatcher（isReverted flag 防护）
+- [x] 快速连续输入时，回退逻辑正确，不会丢失输入
 
 ## Blocked by
 

@@ -1,4 +1,4 @@
-# Issue 2: value 受控 prop
+# Issue 2: value 受控 prop ✅
 
 ## What to build
 
@@ -6,10 +6,10 @@
 
 ## Acceptance criteria
 
-- [ ] JS 侧传 `value="hello"` 时，EditText 显示 "hello"
-- [ ] JS 侧更新 value prop 时，EditText 文本同步更新
-- [ ] setText 不会触发 TextWatcher 递归（isReverted flag 正确工作）
-- [ ] 光标位置跟随 value 更新
+- [x] JS 侧传 `value="hello"` 时，EditText 显示 "hello"
+- [x] JS 侧更新 value prop 时，EditText 文本同步更新
+- [x] setText 不会触发 TextWatcher 递归（isReverted flag 正确工作）
+- [x] 光标位置跟随 value 更新
 
 ## Blocked by
 

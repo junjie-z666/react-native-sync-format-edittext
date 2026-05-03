@@ -1,9 +1,17 @@
-import { View, type ColorValue, type ViewProps } from 'react-native';
+import { View, type ViewProps } from 'react-native';
+
+type FormatFn = (
+  text: string,
+  cursorPos: number
+) => { text: string; cursorPos: number };
 
 type Props = ViewProps & {
-  color?: ColorValue;
+  value?: string;
+  placeholder?: string;
+  format?: FormatFn;
+  onChange?: (text: string, cursorPos: number) => void;
 };
 
-export function SyncFormatEdittextView({ color, style, ...rest }: Props) {
-  return <View {...rest} style={[style, { backgroundColor: color }]} />;
+export function SyncFormatEdittextView({ style, ...rest }: Props) {
+  return <View {...rest} style={style} />;
 }

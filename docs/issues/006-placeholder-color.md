@@ -1,4 +1,4 @@
-# Issue 6: placeholder + color props
+# Issue 6: placeholder + color props ✅
 
 ## What to build
 
@@ -6,10 +6,10 @@
 
 ## Acceptance criteria
 
-- [ ] `placeholder="请输入电话号码"` 在 EditText 中显示为 hint 文本
-- [ ] `color="#ff0000"` 设置 EditText 背景为红色
-- [ ] placeholder 和 color 可以同时使用
-- [ ] 不传时使用默认值（无 hint，透明背景）
+- [x] `placeholder="请输入电话号码"` 在 EditText 中显示为 hint 文本
+- [x] `color="#ff0000"` 设置 EditText 背景为红色
+- [x] placeholder 和 color 可以同时使用
+- [x] 不传时使用默认值（无 hint，透明背景）
 
 ## Blocked by
 
