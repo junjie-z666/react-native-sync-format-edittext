@@ -41,7 +41,7 @@ export function SyncFormatEdittextView({
       style={style}
       value={value}
       placeholder={placeholder}
-      onChange={handleNativeChange}
+      onSyncFormatChange={handleNativeChange}
     />
   );
 }

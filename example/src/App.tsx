@@ -6,14 +6,15 @@ function formatPhone(text: string, cursorPos: number) {
   const digits = text.replace(/\D/g, '').slice(0, 11);
   let formatted = '';
   let newCursorPos = cursorPos;
-
+  const connectSignal = '-';
+  // const connectSignal = '&';
   if (digits.length <= 3) {
     formatted = digits;
   } else if (digits.length <= 7) {
-    formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    formatted = `${digits.slice(0, 3)}${connectSignal}${digits.slice(3)}`;
     if (cursorPos > 3) newCursorPos = cursorPos + 1;
   } else {
-    formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+    formatted = `${digits.slice(0, 3)}${connectSignal}${digits.slice(3, 7)}${connectSignal}${digits.slice(7)}`;
     if (cursorPos > 3) newCursorPos = cursorPos + 1;
     if (cursorPos > 7) newCursorPos = cursorPos + 1;
   }

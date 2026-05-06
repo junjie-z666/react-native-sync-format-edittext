@@ -11,7 +11,7 @@ class SyncFormatEditTextChangeEvent(
   private val cursorPos: Int
 ) : Event<SyncFormatEditTextChangeEvent>(surfaceId, viewTag) {
 
-  override fun getEventName(): String = "onChange"
+  override fun getEventName(): String = "topSyncFormatChange"
 
   override fun getEventData(): WritableMap {
     return Arguments.createMap().apply {

@@ -11,15 +11,15 @@ import com.facebook.react.viewmanagers.SyncFormatEdittextViewManagerInterface
 import com.facebook.react.viewmanagers.SyncFormatEdittextViewManagerDelegate
 
 @ReactModule(name = SyncFormatEdittextViewManager.NAME)
-class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEditextView>(),
-  SyncFormatEdittextViewManagerInterface<SyncFormatEditextView> {
-  private val mDelegate: ViewManagerDelegate<SyncFormatEditextView>
+class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(),
+  SyncFormatEdittextViewManagerInterface<SyncFormatEdittextView> {
+  private val mDelegate: ViewManagerDelegate<SyncFormatEdittextView>
 
   init {
     mDelegate = SyncFormatEdittextViewManagerDelegate(this)
   }
 
-  override fun getDelegate(): ViewManagerDelegate<SyncFormatEditextView>? {
+  override fun getDelegate(): ViewManagerDelegate<SyncFormatEdittextView>? {
     return mDelegate
   }
 
@@ -27,8 +27,8 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEditextView>()
     return NAME
   }
 
-  public override fun createViewInstance(context: ThemedReactContext): SyncFormatEditextView {
-    val view = SyncFormatEditextView(context)
+  public override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
+    val view = SyncFormatEdittextView(context)
     view.setOnChangeListener { text, cursorPos ->
       val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, view.id)
       dispatcher?.dispatchEvent(
@@ -44,21 +44,16 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEditextView>()
   }
 
   @ReactProp(name = "value")
-  override fun setValue(view: SyncFormatEditextView?, value: String?) {
+  override fun setValue(view: SyncFormatEdittextView?, value: String?) {
     view?.setFormattedText(value ?: "", (value ?: "").length)
   }
 
   @ReactProp(name = "placeholder")
-  override fun setPlaceholder(view: SyncFormatEditextView?, placeholder: String?) {
+  override fun setPlaceholder(view: SyncFormatEdittextView?, placeholder: String?) {
     view?.hint = placeholder
   }
 
-  @ReactProp(name = "color")
-  override fun setColor(view: SyncFormatEditextView?, color: Int?) {
-    view?.setBackgroundColor(color ?: Color.TRANSPARENT)
-  }
-
   companion object {
-    const val NAME = "SyncFormatEditextView"
+    const val NAME = "SyncFormatEdittextView"
   }
 }

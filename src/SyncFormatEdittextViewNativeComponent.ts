@@ -4,7 +4,7 @@ import { codegenNativeComponent, type ViewProps } from 'react-native';
 interface NativeProps extends ViewProps {
   value?: string;
   placeholder?: string;
-  onChange?: CodegenTypes.DirectEventHandler<{
+  onSyncFormatChange?: CodegenTypes.DirectEventHandler<{
     text: string;
     cursorPos: CodegenTypes.Double;
   }>;
