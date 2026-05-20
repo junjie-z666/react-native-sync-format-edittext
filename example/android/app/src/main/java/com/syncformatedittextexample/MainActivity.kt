@@ -1,4 +1,4 @@
-package syncformatedittext.example
+package com.syncformatedittextexample
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
