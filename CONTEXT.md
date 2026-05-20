@@ -11,6 +11,10 @@
 1. **组件模式**: 受控组件（value + onChange prop），format 函数在 JS 侧执行
 2. **防闪烁**: TextWatcher 中 `isReverting` flag + `Editable.replace()` 回退到上次格式化值
 3. **Props 最小集**: value, onChange, color, placeholder
-4. **线程模型**: 异步 — 原生发 onChange 事件到 JS，JS 格式化后通过 value prop 回写
-5. **顺序保证**: RN FIFO 事件队列保证快速连续输入的顺序正确性
-6. **Android 架构兼容**: Gradle source set 分离（main/newarch/oldarch），根据宿主 app 的 `newArchEnabled` 属性切换编译。JS 侧 `codegenNativeComponent` 自带老架构兼容，不需改动
+4. **线程模型（旧）**: 异步 — 原生发 onChange 事件到 JS，JS 格式化后通过 value prop 回写
+5. **线程模型（新）**: JSI 同步 — TextWatcher 通过 JNI → C++ HostObject → `invokeSync` 直接调用 JS format 函数，结果同步返回
+6. **顺序保证**: 同步模式下无需队列保证；异步模式依赖 RN FIFO 事件队列
+7. **Android 架构兼容**: Gradle source set 分离（main/newarch/oldarch），根据宿主 app 的 `newArchEnabled` 属性切换编译。JS 侧 `codegenNativeComponent` 自带老架构兼容，不需改动
+8. **格式化函数注册**: JS 侧 `useEffect` 后通过 `global.__formatModule.setFormat(viewTag, fn)` 注册，viewTag 关联到具体 View 实例
+9. **错误处理**: invokeSync 失败时回退到不格式化，直接显示原始输入
+10. **受控模型**: 保留 value prop，TextWatcher 同步更新后跳过重复的 value prop 写入

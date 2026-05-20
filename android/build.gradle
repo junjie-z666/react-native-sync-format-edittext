@@ -41,10 +41,17 @@ android {
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
     targetSdkVersion getExtOrDefault("targetSdkVersion")
+
+    externalNativeBuild {
+      cmake {
+        arguments "-DANDROID_STL=c++_shared"
+      }
+    }
   }
 
   buildFeatures {
     buildConfig true
+    prefab true
   }
 
   buildTypes {
@@ -67,6 +74,29 @@ android {
       main.java.srcDirs += "src/newarch/java"
     } else {
       main.java.srcDirs += "src/oldarch/java"
+    }
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "src/main/cpp/CMakeLists.txt"
+    }
+  }
+
+  packaging {
+    jniLibs {
+      excludes += [
+        "**/libfbjni.so",
+        "**/libjsi.so",
+        "**/libhermes.so",
+        "**/libreactnativejni.so",
+        "**/libreactnative.so",
+        "**/libjscexecutor.so",
+        "**/libhermestooling.so",
+        "**/libfolly_runtime.so",
+        "**/libglog.so",
+        "**/libturbomodulejsijni.so"
+      ]
     }
   }
 }

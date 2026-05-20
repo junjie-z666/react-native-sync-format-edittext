@@ -10,6 +10,7 @@ class SyncFormatEdittextView : AppCompatEditText {
   private var isReverting = false
   private var lastFormattedText = ""
   private var onChangeListener: ((String, Int) -> Unit)? = null
+  var formatModule: FormatModule? = null
 
   constructor(context: Context) : super(context)
   constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -27,14 +28,35 @@ class SyncFormatEdittextView : AppCompatEditText {
         if (isReverting) return
         val currentText = s?.toString() ?: ""
         if (currentText == lastFormattedText) return
-        isReverting = true
-        val editable = text
-        if (editable != null) {
-          editable.replace(0, editable.length, lastFormattedText)
+
+        val module = formatModule
+        val viewTag = id
+
+        if (module != null && viewTag > 0) {
+          // JSI sync path: call format function synchronously
+          try {
+            val result = module.formatText(viewTag, currentText, selectionEnd.coerceAtLeast(0))
+            isReverting = true
+            s?.replace(0, s.length, result.text)
+            setSelection(result.cursorPos.coerceIn(0, result.text.length))
+            lastFormattedText = result.text
+            isReverting = false
+            onChangeListener?.invoke(result.text, result.cursorPos)
+          } catch (e: Exception) {
+            // Fallback: show raw input without formatting
+            isReverting = true
+            lastFormattedText = currentText
+            isReverting = false
+            onChangeListener?.invoke(currentText, selectionEnd.coerceAtLeast(0))
+          }
+        } else {
+          // Async fallback: revert to last formatted text + dispatch event
+          isReverting = true
+          s?.replace(0, s.length, lastFormattedText)
+          val cursorPos = selectionEnd.coerceAtLeast(0)
+          isReverting = false
+          onChangeListener?.invoke(currentText, cursorPos)
         }
-        val cursorPos = selectionEnd.coerceAtLeast(0)
-        onChangeListener?.invoke(currentText, cursorPos)
-        isReverting = false
       }
     })
   }
@@ -44,6 +66,7 @@ class SyncFormatEdittextView : AppCompatEditText {
   }
 
   fun setFormattedText(text: String, cursorPos: Int) {
+    if (text == lastFormattedText) return
     isReverting = true
     setText(text)
     val safeCursorPos = cursorPos.coerceIn(0, text.length)

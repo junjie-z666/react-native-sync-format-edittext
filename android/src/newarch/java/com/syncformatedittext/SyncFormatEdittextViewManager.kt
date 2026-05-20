@@ -29,6 +29,7 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(
 
   public override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
     val view = SyncFormatEdittextView(context)
+    view.formatModule = FormatModule.instance
     view.setOnChangeListener { text, cursorPos ->
       val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, view.id)
       dispatcher?.dispatchEvent(
