@@ -13,3 +13,4 @@
 3. **Props 最小集**: value, onChange, color, placeholder
 4. **线程模型**: 异步 — 原生发 onChange 事件到 JS，JS 格式化后通过 value prop 回写
 5. **顺序保证**: RN FIFO 事件队列保证快速连续输入的顺序正确性
+6. **Android 架构兼容**: Gradle source set 分离（main/newarch/oldarch），根据宿主 app 的 `newArchEnabled` 属性切换编译。JS 侧 `codegenNativeComponent` 自带老架构兼容，不需改动

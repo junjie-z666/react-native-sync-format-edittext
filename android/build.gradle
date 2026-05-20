@@ -60,6 +60,14 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
+
+  sourceSets {
+    if (rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true") {
+      main.java.srcDirs += "src/newarch/java"
+    } else {
+      main.java.srcDirs += "src/oldarch/java"
+    }
+  }
 }
 
 dependencies {

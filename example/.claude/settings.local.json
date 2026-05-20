@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p android/src/newarch/java/com/syncformatedittext)",
+      "Bash(mkdir -p android/src/oldarch/java/com/syncformatedittext)",
+      "Bash(yarn android *)",
+      "Bash(./gradlew.bat app:installDebug)",
+      "Bash(cmd.exe /c \"echo %PATH%\")"
+    ]
+  }
+}
