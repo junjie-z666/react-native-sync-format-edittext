@@ -25,3 +25,4 @@ target_link_libraries(syncformatedittext
 )
 
 target_compile_options(syncformatedittext PRIVATE -fvisibility=hidden)
+target_link_options(syncformatedittext PRIVATE "-Wl,-z,max-page-size=16384")
