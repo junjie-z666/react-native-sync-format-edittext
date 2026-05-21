@@ -4,6 +4,7 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerModule
+import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.annotations.ReactProp
 
 @ReactModule(name = SyncFormatEdittextViewManager.NAME)
@@ -11,6 +12,13 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(
 
   override fun getName(): String {
     return NAME
+  }
+
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
+    return MapBuilder.of<String, Any>(
+      "topSyncFormatChange",
+      MapBuilder.of<String, String>("registrationName", "onSyncFormatChange")
+    )
   }
 
   public override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
