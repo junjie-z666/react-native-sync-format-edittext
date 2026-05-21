@@ -21,6 +21,7 @@ public:
   // Called from JNI (UI thread)
   std::string formatText(int viewTag, const std::string& text, int cursorPos);
   void removeFormat(int viewTag);
+  bool hasFormat(int viewTag);
 
 private:
   std::shared_ptr<CallInvoker> callInvoker_;

@@ -53,6 +53,11 @@ void FormatHostObject::removeFormat(int viewTag) {
   formatFns_.erase(viewTag);
 }
 
+bool FormatHostObject::hasFormat(int viewTag) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return formatFns_.find(viewTag) != formatFns_.end();
+}
+
 std::string FormatHostObject::formatText(int viewTag, const std::string& text, int cursorPos) {
   // Copy shared_ptr OUTSIDE invokeSync to avoid deadlock
   std::shared_ptr<jsi::Function> fnPtr;

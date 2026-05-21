@@ -52,13 +52,15 @@ export function SyncFormatEdittextView({
   const handleNativeChange = useCallback(
     (event: { nativeEvent: { text: string; cursorPos: number } }) => {
       const { text, cursorPos } = event.nativeEvent;
-      if (formatModule) {
-        // JSI sync path: native already called format, text is formatted
-        onChange?.(text, cursorPos);
-      } else if (format) {
-        // Fallback: format on JS side
+      if (format) {
         const result = format(text, cursorPos);
-        onChange?.(result.text, result.cursorPos);
+        if (result.text === text) {
+          // Native already formatted — use native cursor position
+          onChange?.(text, cursorPos);
+        } else {
+          // Text not yet formatted (async fallback or format not registered)
+          onChange?.(result.text, result.cursorPos);
+        }
       } else {
         onChange?.(text, cursorPos);
       }

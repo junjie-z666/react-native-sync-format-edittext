@@ -67,4 +67,14 @@ Java_com_syncformatedittext_FormatModule_nativeRemoveFormat(
   }
 }
 
+JNIEXPORT jboolean JNICALL
+Java_com_syncformatedittext_FormatModule_nativeHasFormat(
+    JNIEnv* env,
+    jclass clazz,
+    jint viewTag) {
+  auto* instance = facebook::react::FormatHostObject::getInstance();
+  if (!instance) return JNI_FALSE;
+  return instance->hasFormat(static_cast<int>(viewTag)) ? JNI_TRUE : JNI_FALSE;
+}
+
 } // extern "C"

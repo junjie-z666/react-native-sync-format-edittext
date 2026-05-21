@@ -34,6 +34,11 @@ class FormatModule(reactContext: ReactApplicationContext) :
         nativeRemoveFormat(viewTag)
     }
 
+    fun hasFormat(viewTag: Int): Boolean {
+        if (!nativeLibLoaded) return false
+        return nativeHasFormat(viewTag)
+    }
+
     companion object {
         const val NAME = "FormatModule"
 
@@ -58,6 +63,9 @@ class FormatModule(reactContext: ReactApplicationContext) :
 
         @JvmStatic
         external fun nativeRemoveFormat(viewTag: Int)
+
+        @JvmStatic
+        external fun nativeHasFormat(viewTag: Int): Boolean
 
         private fun parseFormatResult(json: String, fallbackText: String, fallbackCursor: Int): FormatResult {
             return try {

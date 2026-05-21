@@ -32,7 +32,7 @@ class SyncFormatEdittextView : AppCompatEditText {
         val module = formatModule
         val viewTag = id
 
-        if (module != null && viewTag > 0) {
+        if (module != null && viewTag > 0 && module.hasFormat(viewTag)) {
           // JSI sync path: call format function synchronously
           try {
             val result = module.formatText(viewTag, currentText, selectionEnd.coerceAtLeast(0))
@@ -43,9 +43,10 @@ class SyncFormatEdittextView : AppCompatEditText {
             isReverting = false
             onChangeListener?.invoke(result.text, result.cursorPos)
           } catch (e: Exception) {
-            // Fallback: show raw input without formatting
+            // Format failed: revert to last known good text
             isReverting = true
-            lastFormattedText = currentText
+            s?.replace(0, s.length, lastFormattedText)
+            setSelection(lastFormattedText.length.coerceAtLeast(0))
             isReverting = false
             onChangeListener?.invoke(currentText, selectionEnd.coerceAtLeast(0))
           }
