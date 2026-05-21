@@ -7,7 +7,6 @@ function formatPhone(text: string, cursorPos: number) {
   let formatted = '';
   let newCursorPos = cursorPos;
   const connectSignal = '-';
-  // const connectSignal = '&';
   if (digits.length <= 3) {
     formatted = digits;
   } else if (digits.length <= 7) {
@@ -28,7 +27,7 @@ function formatPhone(text: string, cursorPos: number) {
 export default function App() {
   const [phone, setPhone] = useState('');
 
-  const handleChange = useCallback((text: string, _cursorPos: number) => {
+  const handleChangeText = useCallback((text: string) => {
     setPhone(text);
   }, []);
 
@@ -38,7 +37,7 @@ export default function App() {
       <SyncFormatEdittextView
         value={phone}
         format={formatPhone}
-        onChange={handleChange}
+        onChangeText={handleChangeText}
         placeholder="请输入电话号码"
         style={styles.input}
       />

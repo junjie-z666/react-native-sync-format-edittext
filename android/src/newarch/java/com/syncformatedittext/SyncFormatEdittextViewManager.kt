@@ -1,59 +1,61 @@
 package com.syncformatedittext
 
-import android.graphics.Color
+import android.text.SpannableString
 import android.util.Log
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.uimanager.SimpleViewManager
+import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
-import com.facebook.react.uimanager.ViewManagerDelegate
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.facebook.react.viewmanagers.SyncFormatEdittextViewManagerInterface
-import com.facebook.react.viewmanagers.SyncFormatEdittextViewManagerDelegate
+import com.facebook.react.views.text.ReactTextUpdate
+import com.facebook.react.views.textinput.ReactEditText
+import com.facebook.react.views.textinput.ReactTextInputManager
 
 @ReactModule(name = SyncFormatEdittextViewManager.NAME)
-class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(),
-  SyncFormatEdittextViewManagerInterface<SyncFormatEdittextView> {
-  private val mDelegate: ViewManagerDelegate<SyncFormatEdittextView>
+class SyncFormatEdittextViewManager : ReactTextInputManager() {
 
   init {
-    Log.d("SyncFormatEdittext", "Using NEW architecture ViewManager")
-    mDelegate = SyncFormatEdittextViewManagerDelegate(this)
+    Log.d("SyncFormatEdittext", "Using NEW architecture ViewManager (extends ReactTextInputManager)")
   }
 
-  override fun getDelegate(): ViewManagerDelegate<SyncFormatEdittextView>? {
-    return mDelegate
-  }
+  override fun getName(): String = NAME
 
-  override fun getName(): String {
-    return NAME
-  }
-
-  public override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
+  override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
     val view = SyncFormatEdittextView(context)
     view.formatModule = FormatModule.instance
-    view.setOnChangeListener { text, cursorPos ->
-      val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, view.id)
+    return view
+  }
+
+  override fun addEventEmitters(context: ThemedReactContext, view: ReactEditText) {
+    super.addEventEmitters(context, view)
+    val editText = view as SyncFormatEdittextView
+    editText.setOnFormatListener { text, cursorPos ->
+      val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, editText.id)
       dispatcher?.dispatchEvent(
         SyncFormatEditTextChangeEvent(
-          UIManagerHelper.getSurfaceId(view),
-          view.id,
+          UIManagerHelper.getSurfaceId(editText),
+          editText.id,
           text,
           cursorPos
         )
       )
     }
-    return view
   }
 
   @ReactProp(name = "value")
-  override fun setValue(view: SyncFormatEdittextView?, value: String?) {
-    view?.setFormattedText(value ?: "", (value ?: "").length)
+  fun setValue(view: ReactEditText, value: String?) {
+    val text = value ?: ""
+    val spannable = SpannableString(text)
+    val eventCount = view.incrementAndGetEventCounter()
+    view.maybeSetTextFromJS(
+      ReactTextUpdate(spannable, eventCount, false, 0, 0, 0)
+    )
   }
 
-  @ReactProp(name = "placeholder")
-  override fun setPlaceholder(view: SyncFormatEdittextView?, placeholder: String?) {
-    view?.hint = placeholder
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> {
+    val constants = super.getExportedCustomDirectEventTypeConstants().toMutableMap()
+    constants["topSyncFormatChange"] = MapBuilder.of("registrationName", "onSyncFormatChange")
+    return constants
   }
 
   companion object {

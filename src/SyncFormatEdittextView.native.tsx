@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { findNodeHandle, TurboModuleRegistry, type ViewProps } from 'react-native';
+import {
+  findNodeHandle,
+  TurboModuleRegistry,
+  type NativeSyntheticEvent,
+  type TextInputProps,
+} from 'react-native';
 import SyncFormatEdittextViewNativeComponent from './SyncFormatEdittextViewNativeComponent';
 
 type FormatFn = (
@@ -7,32 +12,34 @@ type FormatFn = (
   cursorPos: number
 ) => { text: string; cursorPos: number };
 
-type Props = ViewProps & {
-  value?: string;
-  placeholder?: string;
+type SyncFormatChangeEvent = NativeSyntheticEvent<{
+  text: string;
+  cursorPos: number;
+}>;
+
+export type SyncFormatEditTextProps = TextInputProps & {
   format?: FormatFn;
-  onChange?: (text: string, cursorPos: number) => void;
+  onSyncFormatChange?: (text: string, cursorPos: number) => void;
 };
 
 // Install JSI bindings synchronously via @ReactMethod(isBlockingSynchronousMethod=true)
 try {
-  const fmtModule = TurboModuleRegistry.getEnforcing<{ install(): void }>('FormatModule');
+  const fmtModule = TurboModuleRegistry.getEnforcing('FormatModule') as unknown as { install(): void };
   fmtModule.install();
 } catch {}
 
-const formatModule: {
+const formatModule = (globalThis as any).__formatModule as {
   setFormat(viewTag: number, fn: FormatFn): void;
   removeFormat(viewTag: number): void;
-} | undefined = (global as any).__formatModule;
+} | undefined;
 
 export function SyncFormatEdittextView({
-  value,
-  placeholder,
   format,
+  onSyncFormatChange,
   onChange,
-  style,
+  onChangeText,
   ...rest
-}: Props) {
+}: SyncFormatEditTextProps) {
   const viewRef = useRef(null);
 
   // Register format function with native via JSI
@@ -49,33 +56,21 @@ export function SyncFormatEdittextView({
     };
   }, [format]);
 
-  const handleNativeChange = useCallback(
-    (event: { nativeEvent: { text: string; cursorPos: number } }) => {
+  const handleSyncFormatChange = useCallback(
+    (event: SyncFormatChangeEvent) => {
       const { text, cursorPos } = event.nativeEvent;
-      if (format) {
-        const result = format(text, cursorPos);
-        if (result.text === text) {
-          // Native already formatted — use native cursor position
-          onChange?.(text, cursorPos);
-        } else {
-          // Text not yet formatted (async fallback or format not registered)
-          onChange?.(result.text, result.cursorPos);
-        }
-      } else {
-        onChange?.(text, cursorPos);
-      }
+      onSyncFormatChange?.(text, cursorPos);
     },
-    [format, onChange]
+    [onSyncFormatChange]
   );
 
   return (
     <SyncFormatEdittextViewNativeComponent
       ref={viewRef}
-      {...rest}
-      style={style}
-      value={value}
-      placeholder={placeholder}
-      onSyncFormatChange={handleNativeChange}
+      {...(rest as any)}
+      onChange={onChange as any}
+      onChangeText={onChangeText as any}
+      onSyncFormatChange={handleSyncFormatChange}
     />
   );
 }
