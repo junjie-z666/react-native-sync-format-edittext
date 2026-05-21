@@ -1,4 +1,4 @@
-package com.syncformatedittextexample
+package com.newarch.syncformatedittextexample
 
 import android.app.Application
 import com.facebook.react.PackageList
