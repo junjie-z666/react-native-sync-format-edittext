@@ -1,5 +1,7 @@
 package com.syncformatedittext
 
+import android.util.Log
+import com.facebook.react.common.MapBuilder
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -8,6 +10,10 @@ import com.facebook.react.uimanager.annotations.ReactProp
 
 @ReactModule(name = SyncFormatEdittextViewManager.NAME)
 class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>() {
+
+  init {
+    Log.d("SyncFormatEdittext", "Using OLD architecture ViewManager")
+  }
 
   override fun getName(): String {
     return NAME
@@ -37,6 +43,13 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(
   @ReactProp(name = "placeholder")
   fun setPlaceholder(view: SyncFormatEdittextView?, placeholder: String?) {
     view?.hint = placeholder
+  }
+
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
+    return MapBuilder.of(
+      "topSyncFormatChange",
+      MapBuilder.of("registrationName", "onSyncFormatChange")
+    )
   }
 
   companion object {

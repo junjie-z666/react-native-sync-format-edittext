@@ -1,6 +1,7 @@
 package com.syncformatedittext
 
 import android.graphics.Color
+import android.util.Log
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -16,6 +17,7 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(
   private val mDelegate: ViewManagerDelegate<SyncFormatEdittextView>
 
   init {
+    Log.d("SyncFormatEdittext", "Using NEW architecture ViewManager")
     mDelegate = SyncFormatEdittextViewManagerDelegate(this)
   }
 

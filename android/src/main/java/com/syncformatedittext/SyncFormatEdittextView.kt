@@ -9,6 +9,7 @@ import androidx.appcompat.widget.AppCompatEditText
 class SyncFormatEdittextView : AppCompatEditText {
   private var isReverting = false
   private var lastFormattedText = ""
+  private var rawCursorPos = 0
   private var onChangeListener: ((String, Int) -> Unit)? = null
   var formatModule: FormatModule? = null
 
@@ -23,7 +24,10 @@ class SyncFormatEdittextView : AppCompatEditText {
   init {
     addTextChangedListener(object : TextWatcher {
       override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        if (isReverting) return
+        rawCursorPos = if (count > 0) start + count else start
+      }
       override fun afterTextChanged(s: Editable?) {
         if (isReverting) return
         val currentText = s?.toString() ?: ""
@@ -35,13 +39,14 @@ class SyncFormatEdittextView : AppCompatEditText {
         if (module != null && viewTag > 0 && module.hasFormat(viewTag)) {
           // JSI sync path: call format function synchronously
           try {
-            val result = module.formatText(viewTag, currentText, selectionEnd.coerceAtLeast(0))
+            val result = module.formatText(viewTag, currentText, rawCursorPos)
+            val newCursorPos = computeFormattedCursorPos(currentText, rawCursorPos, result.text)
             isReverting = true
             s?.replace(0, s.length, result.text)
-            setSelection(result.cursorPos.coerceIn(0, result.text.length))
+            setSelection(newCursorPos.coerceIn(0, result.text.length))
             lastFormattedText = result.text
             isReverting = false
-            onChangeListener?.invoke(result.text, result.cursorPos)
+            onChangeListener?.invoke(result.text, newCursorPos)
           } catch (e: Exception) {
             // Format failed: revert to last known good text
             isReverting = true
@@ -74,5 +79,19 @@ class SyncFormatEdittextView : AppCompatEditText {
     setSelection(safeCursorPos)
     lastFormattedText = text
     isReverting = false
+  }
+
+  private fun computeFormattedCursorPos(rawText: String, cursorPos: Int, formattedText: String): Int {
+    val digitCount = rawText.substring(0, cursorPos.coerceAtMost(rawText.length))
+      .count { it.isDigit() }
+    if (digitCount == 0) return 0
+    var digitsSeen = 0
+    for (i in formattedText.indices) {
+      if (formattedText[i].isDigit()) {
+        digitsSeen++
+        if (digitsSeen == digitCount) return i + 1
+      }
+    }
+    return formattedText.length
   }
 }
