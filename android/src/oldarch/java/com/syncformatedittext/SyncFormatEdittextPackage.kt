@@ -11,8 +11,8 @@ class SyncFormatEdittextViewPackage : ReactPackage {
   }
 
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+    FormatModuleImpl.instance = FormatModuleImpl(reactContext)
     val module = FormatModule(reactContext)
-    FormatModule.instance = module
     return listOf(module)
   }
 }

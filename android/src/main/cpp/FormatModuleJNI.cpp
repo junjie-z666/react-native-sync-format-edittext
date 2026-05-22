@@ -22,7 +22,7 @@ static void installFormatModule(jsi::Runtime& runtime, const std::shared_ptr<Cal
 extern "C" {
 
 JNIEXPORT void JNICALL
-Java_com_syncformatedittext_FormatModule_nativeInstall(
+Java_com_syncformatedittext_FormatModuleImpl_nativeInstall(
     JNIEnv* env,
     jclass clazz,
     jlong jsiRuntimeRef,
@@ -35,7 +35,7 @@ Java_com_syncformatedittext_FormatModule_nativeInstall(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_syncformatedittext_FormatModule_nativeFormatText(
+Java_com_syncformatedittext_FormatModuleImpl_nativeFormatText(
     JNIEnv* env,
     jclass clazz,
     jint viewTag,
@@ -57,7 +57,7 @@ Java_com_syncformatedittext_FormatModule_nativeFormatText(
 }
 
 JNIEXPORT void JNICALL
-Java_com_syncformatedittext_FormatModule_nativeRemoveFormat(
+Java_com_syncformatedittext_FormatModuleImpl_nativeRemoveFormat(
     JNIEnv* env,
     jclass clazz,
     jint viewTag) {
@@ -68,7 +68,7 @@ Java_com_syncformatedittext_FormatModule_nativeRemoveFormat(
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_syncformatedittext_FormatModule_nativeHasFormat(
+Java_com_syncformatedittext_FormatModuleImpl_nativeHasFormat(
     JNIEnv* env,
     jclass clazz,
     jint viewTag) {

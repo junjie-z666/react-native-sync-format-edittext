@@ -1,25 +1,16 @@
 package com.syncformatedittext
 
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder
 
 data class FormatResult(val text: String, val cursorPos: Int)
 
-@ReactModule(name = FormatModule.NAME)
-class FormatModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+class FormatModuleImpl(private val reactContext: ReactApplicationContext) {
 
-    override fun getName(): String = NAME
-
-    @ReactMethod(isBlockingSynchronousMethod = true)
     fun install() {
         if (!nativeLibLoaded) return
-        val context = reactApplicationContext
-        val runtimeRef = context.javaScriptContextHolder!!.get()
-        val callInvokerHolder = context.jsCallInvokerHolder!!
+        val runtimeRef = reactContext.javaScriptContextHolder!!.get()
+        val callInvokerHolder = reactContext.jsCallInvokerHolder!!
         nativeInstall(runtimeRef, callInvokerHolder)
     }
 
@@ -29,21 +20,19 @@ class FormatModule(reactContext: ReactApplicationContext) :
         return parseFormatResult(json, text, cursorPos)
     }
 
-    fun removeFormat(viewTag: Int) {
-        if (!nativeLibLoaded) return
-        nativeRemoveFormat(viewTag)
-    }
-
     fun hasFormat(viewTag: Int): Boolean {
         if (!nativeLibLoaded) return false
         return nativeHasFormat(viewTag)
     }
 
-    companion object {
-        const val NAME = "FormatModule"
+    fun removeFormat(viewTag: Int) {
+        if (!nativeLibLoaded) return
+        nativeRemoveFormat(viewTag)
+    }
 
+    companion object {
         @JvmStatic
-        var instance: FormatModule? = null
+        var instance: FormatModuleImpl? = null
 
         private var nativeLibLoaded = false
 

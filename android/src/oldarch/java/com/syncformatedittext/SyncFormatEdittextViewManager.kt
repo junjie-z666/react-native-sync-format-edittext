@@ -1,7 +1,6 @@
 package com.syncformatedittext
 
 import android.text.SpannableString
-import android.util.Log
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.ThemedReactContext
@@ -14,15 +13,11 @@ import com.facebook.react.views.textinput.ReactTextInputManager
 @ReactModule(name = SyncFormatEdittextViewManager.NAME)
 class SyncFormatEdittextViewManager : ReactTextInputManager() {
 
-  init {
-    Log.d("SyncFormatEdittext", "Using OLD architecture ViewManager (extends ReactTextInputManager)")
-  }
-
   override fun getName(): String = NAME
 
   override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
     val view = SyncFormatEdittextView(context)
-    view.formatModule = FormatModule.instance
+    view.formatModule = FormatModuleImpl.instance
     return view
   }
 

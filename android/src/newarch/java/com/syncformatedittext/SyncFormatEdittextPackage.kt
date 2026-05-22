@@ -15,9 +15,8 @@ class SyncFormatEdittextViewPackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
     return when (name) {
       FormatModule.NAME -> {
-        val module = FormatModule(reactContext)
-        FormatModule.instance = module
-        module
+        FormatModuleImpl.instance = FormatModuleImpl(reactContext)
+        FormatModule(reactContext)
       }
       else -> null
     }
@@ -30,7 +29,7 @@ class SyncFormatEdittextViewPackage : BaseReactPackage() {
         FormatModule.NAME,
         false,  // canOverrideExistingModule
         true,   // needsEagerInit
-        true,   // isCxxModule
+        false,  // isCxxModule
         true    // isTurboModule
       )
     )

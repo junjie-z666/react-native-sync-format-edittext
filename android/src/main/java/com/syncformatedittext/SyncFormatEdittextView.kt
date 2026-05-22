@@ -9,7 +9,7 @@ class SyncFormatEdittextView(context: Context) : ReactEditText(context) {
   private var rawCursorPos = 0
   private var isFormatting = false
   private var onFormatListener: ((String, Int) -> Unit)? = null
-  var formatModule: FormatModule? = null
+  var formatModule: FormatModuleImpl? = null
 
   init {
     addTextChangedListener(object : TextWatcher {
@@ -39,7 +39,6 @@ class SyncFormatEdittextView(context: Context) : ReactEditText(context) {
             isFormatting = false
             onFormatListener?.invoke(result.text, newCursorPos)
           } catch (e: Exception) {
-            // Format failed — leave text as-is, dispatch raw
             onFormatListener?.invoke(currentText, selectionEnd.coerceAtLeast(0))
           }
         }

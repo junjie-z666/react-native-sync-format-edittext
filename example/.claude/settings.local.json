@@ -11,7 +11,10 @@
       "Bash(cp -r /i/react_workspace/temp-rn-081/android .)",
       "Bash(cp -r /i/react_workspace/temp-rn-081/ios .)",
       "Bash(yarn install *)",
-      "Bash(npm view *)"
+      "Bash(npm view *)",
+      "Bash(JAVA_HOME=\"H:/AndroidStudio/jbr\" ./gradlew :app:assembleDebug)",
+      "Bash(JAVA_HOME=\"H:/AndroidStudio/jbr\" ./gradlew :react-native-sync-format-edittext:compileDebugKotlin)",
+      "Bash(file *)"
     ]
   }
 }

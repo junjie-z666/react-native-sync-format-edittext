@@ -22,16 +22,13 @@ export type SyncFormatEditTextProps = TextInputProps & {
   onSyncFormatChange?: (text: string, cursorPos: number) => void;
 };
 
-// Install JSI bindings synchronously via @ReactMethod(isBlockingSynchronousMethod=true)
+// Install JSI bindings on first use
 try {
-  const fmtModule = TurboModuleRegistry.getEnforcing('FormatModule') as unknown as { install(): void };
+  const fmtModule = TurboModuleRegistry.getEnforcing(
+    'FormatModule'
+  ) as unknown as { install(): void };
   fmtModule.install();
 } catch {}
-
-const formatModule = (globalThis as any).__formatModule as {
-  setFormat(viewTag: number, fn: FormatFn): void;
-  removeFormat(viewTag: number): void;
-} | undefined;
 
 export function SyncFormatEdittextView({
   format,
@@ -42,9 +39,17 @@ export function SyncFormatEdittextView({
 }: SyncFormatEditTextProps) {
   const viewRef = useRef(null);
 
-  // Register format function with native via JSI
   useEffect(() => {
-    if (!format || !formatModule) return;
+    if (!format || !viewRef.current) return;
+
+    const formatModule = (globalThis as any).__formatModule as
+      | {
+          setFormat(viewTag: number, fn: FormatFn): void;
+          removeFormat(viewTag: number): void;
+        }
+      | undefined;
+    if (!formatModule) return;
+
     const tag = findNodeHandle(viewRef.current);
     if (tag) {
       formatModule.setFormat(tag, format);
@@ -54,7 +59,7 @@ export function SyncFormatEdittextView({
         formatModule.removeFormat(tag);
       }
     };
-  }, [format]);
+  }, [viewRef.current]);
 
   const handleSyncFormatChange = useCallback(
     (event: SyncFormatChangeEvent) => {
