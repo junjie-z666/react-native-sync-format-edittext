@@ -7,7 +7,6 @@ function formatPhone(text: string, cursorPos: number) {
   let formatted = '';
   let newCursorPos = cursorPos;
   const connectSignal = '-';
-  // const connectSignal = '&';
   if (digits.length <= 3) {
     formatted = digits;
   } else if (digits.length <= 7) {
@@ -25,12 +24,32 @@ function formatPhone(text: string, cursorPos: number) {
   };
 }
 
+function formatLettersOnly(text: string, cursorPos: number) {
+  const letters = text.replace(/[^a-zA-Z]/g, '').slice(0, 10);
+  let lettersBefore = 0;
+  for (let i = 0; i < Math.min(cursorPos, text.length); i++) {
+    if (/[a-zA-Z]/.test(text[i]!)) lettersBefore++;
+  }
+  return {
+    text: letters,
+    cursorPos: Math.min(lettersBefore, letters.length),
+  };
+}
+
 export default function App() {
   const [phone, setPhone] = useState('');
+  const [letters, setLetters] = useState('');
 
-  const handleChange = useCallback((text: string, _cursorPos: number) => {
+  const handlePhoneChange = useCallback((text: string, _cursorPos: number) => {
     setPhone(text);
   }, []);
+
+  const handleLettersChange = useCallback(
+    (text: string, _cursorPos: number) => {
+      setLetters(text);
+    },
+    []
+  );
 
   return (
     <View style={styles.container}>
@@ -38,11 +57,21 @@ export default function App() {
       <SyncFormatEdittextView
         value={phone}
         format={formatPhone}
-        onChange={handleChange}
+        onChange={handlePhoneChange}
         placeholder="请输入电话号码"
         style={styles.input}
       />
       <Text style={styles.preview}>原始值: {phone}</Text>
+
+      <Text style={[styles.title, { marginTop: 24 }]}>仅字母输入</Text>
+      <SyncFormatEdittextView
+        value={letters}
+        format={formatLettersOnly}
+        onChange={handleLettersChange}
+        placeholder="请输入字母"
+        style={styles.input}
+      />
+      <Text style={styles.preview}>原始值: {letters}</Text>
     </View>
   );
 }

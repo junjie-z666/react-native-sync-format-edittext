@@ -11,7 +11,24 @@
       "Bash(cp -r /i/react_workspace/temp-rn-081/android .)",
       "Bash(cp -r /i/react_workspace/temp-rn-081/ios .)",
       "Bash(yarn install *)",
-      "Bash(npm view *)"
+      "Bash(npm view *)",
+      "Bash(./gradlew.bat assembleDebug)",
+      "Bash(npx react-native *)",
+      "Bash(rm -rf app/build)",
+      "Bash(rm -rf build)",
+      "Bash(./gradlew.bat clean *)",
+      "Bash(claude config *)",
+      "WebSearch",
+      "Bash(adb install *)",
+      "Bash(adb logcat *)",
+      "Bash(adb shell *)",
+      "mcp__maestro__list_devices",
+      "Bash(./gradlew.bat app:installDebug -PreactNativeDevServerPort=8081)",
+      "mcp__maestro__run",
+      "Bash(adb devices *)",
+      "mcp__maestro__inspect_screen",
+      "Bash(netstat -ano)",
+      "Bash(./gradlew.bat :react-native-sync-format-edittext:compileDebugKotlin)"
     ]
   }
 }

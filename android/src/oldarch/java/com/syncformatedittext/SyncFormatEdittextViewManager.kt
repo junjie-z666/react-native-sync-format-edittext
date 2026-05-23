@@ -38,12 +38,12 @@ class SyncFormatEdittextViewManager : SimpleViewManager<SyncFormatEdittextView>(
 
   @ReactProp(name = "value")
   fun setValue(view: SyncFormatEdittextView?, value: String?) {
-    view?.setFormattedText(value ?: "", (value ?: "").length)
+    SyncFormatEdittextHelper.setValue(view, value)
   }
 
   @ReactProp(name = "placeholder")
   fun setPlaceholder(view: SyncFormatEdittextView?, placeholder: String?) {
-    view?.hint = placeholder
+    SyncFormatEdittextHelper.setPlaceholder(view, placeholder)
   }
 
   companion object {
