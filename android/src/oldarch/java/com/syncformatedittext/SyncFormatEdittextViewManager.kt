@@ -39,6 +39,8 @@ class SyncFormatEdittextViewManager : ReactTextInputManager() {
   @ReactProp(name = "value")
   fun setValue(view: ReactEditText, value: String?) {
     val text = value ?: ""
+    val currentText = view.text.toString()
+    if (currentText == text) return
     val spannable = SpannableString(text)
     val eventCount = view.incrementAndGetEventCounter()
     view.maybeSetTextFromJS(

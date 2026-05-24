@@ -41,9 +41,10 @@ import { SyncFormatEdittextView } from 'react-native-sync-format-edittext';
 // 只允许输入数字
 function formatDigits(text: string, cursorPos: number) {
   const digits = text.replace(/\D/g, '');
+  const removedBeforeCursor = text.slice(0, cursorPos).replace(/\d/g, '').length;
   return {
     text: digits,
-    cursorPos: Math.min(cursorPos, digits.length),
+    cursorPos: cursorPos - removedBeforeCursor,
   };
 }
 
@@ -71,23 +72,24 @@ function formatDigits(text: string, cursorPos: number) {
 
 `cursorPos` 是字符在字符串中的索引（从 0 开始）。格式化后文本长度可能改变，光标位置需要相应调整，否则会跳到错误位置。
 
-**原理**：`cursorPos` 表示"光标在第几个字符前面"。格式化后，你需要计算光标在格式化文本中的对应位置。如果格式化只是过滤字符（文本变短），光标位置通常不变或取 min；如果格式化插入了分隔符（文本变长），光标需要加上它前方新增的字符数。
+**原理**：`cursorPos` 表示"光标在第几个字符前面"。格式化后，你需要计算光标在格式化文本中的对应位置。如果格式化只是过滤字符（文本变短），光标位置 = 原位置 - 光标前被过滤掉的字符数；如果格式化插入了分隔符（文本变长），还需要再加上光标前新增的分隔符数量。
 
 **示例 1：只过滤，不插入字符**
 
-输入 `a1b2`，光标在末尾（cursorPos=4）。过滤非数字后得到 `12`，光标仍在末尾，即 cursorPos=2。
+输入 `a1b2`，光标在末尾（cursorPos=4）。过滤非数字后得到 `12`，光标前被过滤了 2 个字符，所以 cursorPos=4-2=2。
 
 ```ts
 function formatDigits(text: string, cursorPos: number) {
   const digits = text.replace(/\D/g, '');
+  const removedBeforeCursor = text.slice(0, cursorPos).replace(/\d/g, '').length;
   return {
     text: digits,
-    cursorPos: Math.min(cursorPos, digits.length),
+    cursorPos: cursorPos - removedBeforeCursor,
   };
 }
 ```
 
-过滤不改变字符顺序，光标前被过滤掉的字符数 = 原光标位置 - 格式化后光标前字符数，所以直接用 `Math.min(cursorPos, digits.length)` 即可。
+过滤不改变字符顺序，光标位置 = 原位置 - 光标前被过滤掉的字符数。
 
 **示例 2：插入分隔符**
 
@@ -95,18 +97,22 @@ function formatDigits(text: string, cursorPos: number) {
 
 ```ts
 function formatPhone(text: string, cursorPos: number) {
+  const beforeCursor = text.slice(0, cursorPos);
+  const removedBeforeCursor = beforeCursor.replace(/\d/g, '').length;
+  const adjustedPos = cursorPos - removedBeforeCursor;
+
   const digits = text.replace(/\D/g, '').slice(0, 11);
   let formatted = '';
-  let newCursorPos = cursorPos;
+  let newCursorPos = adjustedPos;
   if (digits.length <= 3) {
     formatted = digits;
   } else if (digits.length <= 7) {
     formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
-    if (cursorPos > 3) newCursorPos = cursorPos + 1; // 光标前多了一个 '-'
+    if (adjustedPos > 3) newCursorPos = adjustedPos + 1;
   } else {
     formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-    if (cursorPos > 3) newCursorPos = cursorPos + 1;  // 第一个 '-'
-    if (cursorPos > 7) newCursorPos = cursorPos + 2;  // 两个 '-'
+    if (adjustedPos > 3) newCursorPos = adjustedPos + 1;
+    if (adjustedPos > 7) newCursorPos = adjustedPos + 2;
   }
   return {
     text: formatted,
@@ -115,7 +121,7 @@ function formatPhone(text: string, cursorPos: number) {
 }
 ```
 
-关键逻辑：光标每跨过一个分隔符位置，`cursorPos` 就 +1。`138-0013-8000` 中分隔符在索引 3 和 8，所以光标在 3 之后时 +1，在 7 之后时 +2。
+关键逻辑：先用 `cursorPos - removedBeforeCursor` 得到纯数字中的位置，再根据分隔符偏移。光标每跨过一个分隔符位置，`cursorPos` 就 +1。
 
 更多示例参见 [example](./example/src/App.tsx)。
 
