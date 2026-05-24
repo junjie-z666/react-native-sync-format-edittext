@@ -28,7 +28,7 @@ React Native 同步格式化输入框 — 无闪烁的实时文本格式化
 ## 安装
 
 ```sh
-npm install react-native-sync-format-edittext
+npm install @azsxdc12356/react-native-sync-format-edittext
 ```
 
 支持新架构和旧架构，autolink 自动完成链接。
@@ -36,7 +36,7 @@ npm install react-native-sync-format-edittext
 ## 使用
 
 ```tsx
-import { SyncFormatEdittextView } from 'react-native-sync-format-edittext';
+import { SyncFormatEdittextView } from '@azsxdc12356/react-native-sync-format-edittext';
 
 // 只允许输入数字
 function formatDigits(text: string, cursorPos: number) {
