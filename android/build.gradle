@@ -82,7 +82,7 @@ android {
     }
   }
 
-  packaging {
+  packagingOptions {
     jniLibs {
       excludes += [
         "**/libfbjni.so",

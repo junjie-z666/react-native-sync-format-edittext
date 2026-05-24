@@ -15,6 +15,8 @@ React Native 同步格式化输入框 — 无闪烁的实时文本格式化
 | Android | ✅ 已支持 |
 | iOS | 🚧 开发中 |
 
+> ⚠️ 需要 React Native **0.76.2** 及以上版本 ，不然codegen会导致无法编译
+
 ## 演示效果
 
 **原生 TextInput 格式化 — 闪烁明显**
