@@ -1,7 +1,7 @@
 {
   "name": "react-native-sync-format-edittext",
-  "version": "0.1.0",
-  "description": "将原生的edittext接受到的字符回传给js层进行format后，再返回原生的值",
+  "version": "1.0.0",
+  "description": "React Native sync format input — flicker-free real-time text formatting via JSI synchronous calls",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -49,14 +49,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+http://github.com/github.comgithub.com.git"
+    "url": "git+https://github.com/junjie-z666/react-native-sync-format-edittext.git"
   },
-  "author": "azsxdc12356 <empty@123> (http://11.com)",
+  "author": "junjie-z666",
   "license": "MIT",
   "bugs": {
-    "url": "http://github.com/github.comgithub.com/issues"
+    "url": "https://github.com/junjie-z666/react-native-sync-format-edittext/issues"
   },
-  "homepage": "http://github.com/github.comgithub.com#readme",
+  "homepage": "https://github.com/junjie-z666/react-native-sync-format-edittext#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

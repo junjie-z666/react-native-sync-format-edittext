@@ -15,7 +15,6 @@ buildscript {
   }
 
   repositories {
-    maven { url 'https://mirrors.tuna.tsinghua.edu.cn/maven' }
     google()
     mavenCentral()
   }
