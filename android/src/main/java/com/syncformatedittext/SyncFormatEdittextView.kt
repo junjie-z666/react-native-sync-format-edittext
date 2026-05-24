@@ -2,86 +2,47 @@ package com.syncformatedittext
 
 import android.content.Context
 import android.text.Editable
+import android.text.Selection
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
-import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatEditText
+import android.view.Gravity
+import com.facebook.react.views.text.ReactTextUpdate
+import com.facebook.react.views.textinput.ReactEditText
 
-class SyncFormatEdittextView : AppCompatEditText {
-  private var isReverting = false
-  private var lastFormattedText = ""
-  private var rawCursorPos = 0
-  private var rawText = ""
-  private var onChangeListener: ((String, Int) -> Unit)? = null
-  var significantCharPredicate: (Char) -> Boolean = { it.isDigit() }
+class SyncFormatEdittextView(context: Context) : ReactEditText(context) {
+  private var onSyncFormatChangeListener: ((String, Int) -> Unit)? = null
 
-  constructor(context: Context) : super(context)
-  constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-  constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-    context,
-    attrs,
-    defStyleAttr
-  )
-
-  init {
-    addTextChangedListener(object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        if (isReverting) return
-        rawCursorPos = if (count > 0) start + count else start
-      }
-      override fun afterTextChanged(s: Editable?) {
-        if (isReverting) return
-        val currentText = s?.toString() ?: ""
-        if (currentText == lastFormattedText) return
-        isReverting = true
-        val editable = text
-        if (editable != null) {
-          editable.replace(0, editable.length, lastFormattedText)
-        }
-        rawText = currentText
-        onChangeListener?.invoke(currentText, rawCursorPos)
-        isReverting = false
-      }
-    })
+  fun setOnSyncFormatChangeListener(listener: (String, Int) -> Unit) {
+    onSyncFormatChangeListener = listener
   }
 
-  fun setOnChangeListener(listener: (String, Int) -> Unit) {
-    onChangeListener = listener
+  fun setValueFromJS(value: String) {
+    val eventCount = incrementAndGetEventCounter()
+    val spannable = SpannableStringBuilder.valueOf(value)
+    maybeSetTextFromJS(
+      ReactTextUpdate(
+        spannable,
+        eventCount,
+        false,
+        0f,
+        0f,
+        0f,
+        0f,
+        Gravity.NO_GRAVITY,
+        0,
+        0
+      )
+    )
   }
 
-  fun setFormattedText(text: String, cursorPos: Int) {
-    val savedRawText = rawText
-    val savedRawCursorPos = rawCursorPos
-    isReverting = true
-    setText(text)
-    val safeCursorPos = cursorPos.coerceIn(0, text.length)
-    setSelection(safeCursorPos)
-    lastFormattedText = text
-    rawText = savedRawText
-    rawCursorPos = savedRawCursorPos
-    isReverting = false
-  }
+  inner class FormatTextWatcher : TextWatcher {
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
-  fun computeFormattedCursorPos(formattedText: String): Int {
-    return computeFormattedCursorPos(rawText, rawCursorPos, formattedText)
-  }
-
-  private fun computeFormattedCursorPos(rawText: String, cursorPos: Int, formattedText: String): Int {
-    val predicate: (Char) -> Boolean = if (formattedText.any(significantCharPredicate)) {
-      significantCharPredicate
-    } else {
-      { it.isLetter() }
+    override fun afterTextChanged(s: Editable?) {
+      val text = s?.toString() ?: ""
+      val cursorPos = Selection.getSelectionStart(s).coerceAtLeast(0)
+      onSyncFormatChangeListener?.invoke(text, cursorPos)
     }
-    val charCount = rawText.substring(0, cursorPos.coerceAtMost(rawText.length))
-      .count(predicate)
-    if (charCount == 0) return 0
-    var charsSeen = 0
-    for (i in formattedText.indices) {
-      if (predicate(formattedText[i])) {
-        charsSeen++
-        if (charsSeen == charCount) return i + 1
-      }
-    }
-    return formattedText.length
   }
 }

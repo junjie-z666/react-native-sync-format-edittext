@@ -1,15 +1,12 @@
-import { View, type ViewProps } from 'react-native';
+import { View, type TextInputProps } from 'react-native';
 
 type FormatFn = (
   text: string,
   cursorPos: number
 ) => { text: string; cursorPos: number };
 
-type Props = ViewProps & {
-  value?: string;
-  placeholder?: string;
+type Props = TextInputProps & {
   format?: FormatFn;
-  onChange?: (text: string, cursorPos: number) => void;
 };
 
 export function SyncFormatEdittextView({ style, ...rest }: Props) {

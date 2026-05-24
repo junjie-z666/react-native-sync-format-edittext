@@ -39,39 +39,58 @@ function formatLettersOnly(text: string, cursorPos: number) {
 export default function App() {
   const [phone, setPhone] = useState('');
   const [letters, setLetters] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handlePhoneChange = useCallback((text: string, _cursorPos: number) => {
+  const handlePhoneChange = useCallback((text: string) => {
     setPhone(text);
   }, []);
 
-  const handleLettersChange = useCallback(
-    (text: string, _cursorPos: number) => {
-      setLetters(text);
-    },
-    []
-  );
+  const handleLettersChange = useCallback((text: string) => {
+    setLetters(text);
+  }, []);
+
+  const handlePasswordChange = useCallback((text: string) => {
+    setPassword(text);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>电话号码格式化</Text>
+      <Text style={styles.title}>Phone (keyboardType=phone-pad)</Text>
       <SyncFormatEdittextView
         value={phone}
         format={formatPhone}
-        onChange={handlePhoneChange}
-        placeholder="请输入电话号码"
+        onChangeText={handlePhoneChange}
+        placeholder="Enter phone number"
+        keyboardType="phone-pad"
         style={styles.input}
       />
-      <Text style={styles.preview}>原始值: {phone}</Text>
+      <Text style={styles.preview}>Value: {phone}</Text>
 
-      <Text style={[styles.title, { marginTop: 24 }]}>仅字母输入</Text>
+      <Text style={[styles.title, { marginTop: 24 }]}>
+        Letters (maxLength=10)
+      </Text>
       <SyncFormatEdittextView
         value={letters}
         format={formatLettersOnly}
-        onChange={handleLettersChange}
-        placeholder="请输入字母"
+        onChangeText={handleLettersChange}
+        placeholder="Enter letters only"
+        maxLength={10}
+        autoCapitalize="characters"
         style={styles.input}
       />
-      <Text style={styles.preview}>原始值: {letters}</Text>
+      <Text style={styles.preview}>Value: {letters}</Text>
+
+      <Text style={[styles.title, { marginTop: 24 }]}>
+        Password (secureTextEntry)
+      </Text>
+      <SyncFormatEdittextView
+        value={password}
+        onChangeText={handlePasswordChange}
+        placeholder="Enter password"
+        secureTextEntry={true}
+        style={styles.input}
+      />
+      <Text style={styles.preview}>Value: {password}</Text>
     </View>
   );
 }
