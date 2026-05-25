@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { SyncFormatEdittextView } from '@azsxdc12356/react-native-sync-format-edittext';
+import { SyncFormatEdittextView } from 'react-native-sync-format-edittext';
 
 function formatPhone(text: string, cursorPos: number) {
   const beforeCursor = text.slice(0, cursorPos);
