@@ -23,12 +23,17 @@ export type SyncFormatEditTextProps = TextInputProps & {
 };
 
 // Install JSI bindings on first use
-try {
-  const fmtModule = TurboModuleRegistry.getEnforcing(
-    'FormatModule'
-  ) as unknown as { install(): void };
-  fmtModule.install();
-} catch {}
+const installPromise: Promise<void> = (() => {
+  try {
+    const fmtModule = TurboModuleRegistry.getEnforcing(
+      'FormatModule'
+    ) as unknown as { install(): Promise<void> };
+    return fmtModule.install();
+  } catch (e) {
+    console.warn('FormatModule install failed:', e);
+    return Promise.reject(e);
+  }
+})();
 
 export function SyncFormatEdittextView({
   format,
@@ -42,31 +47,46 @@ export function SyncFormatEdittextView({
   useEffect(() => {
     if (!format || !viewRef.current) return;
 
-    const formatModule = (globalThis as any).__formatModule as
-      | {
-          setFormat(viewTag: number, fn: FormatFn): void;
-          removeFormat(viewTag: number): void;
-        }
-      | undefined;
-    if (!formatModule) return;
+    let mounted = true;
+    const currentRef = viewRef.current;
 
-    const tag = findNodeHandle(viewRef.current);
-    if (tag) {
-      formatModule.setFormat(tag, format);
-    }
+    installPromise.then(() => {
+      if (!mounted || !viewRef.current) return;
+
+      const formatModule = (globalThis as any).__formatModule as
+        | {
+            setFormat(viewTag: number, fn: FormatFn): void;
+            removeFormat(viewTag: number): void;
+          }
+        | undefined;
+      if (!formatModule) return;
+
+      const tag = findNodeHandle(viewRef.current);
+      if (tag) {
+        formatModule.setFormat(tag, format);
+      }
+    });
+
     return () => {
+      mounted = false;
+      const formatModule = (globalThis as any).__formatModule as
+        | { removeFormat(viewTag: number): void }
+        | undefined;
+      if (!formatModule || !currentRef) return;
+      const tag = findNodeHandle(currentRef);
       if (tag) {
         formatModule.removeFormat(tag);
       }
     };
-  }, [viewRef.current]);
+  }, [viewRef.current, format]);
 
   const handleSyncFormatChange = useCallback(
     (event: SyncFormatChangeEvent) => {
       const { text, cursorPos } = event.nativeEvent;
       onSyncFormatChange?.(text, cursorPos);
+      onChangeText?.(text);
     },
-    [onSyncFormatChange]
+    [onSyncFormatChange, onChangeText]
   );
 
   return (

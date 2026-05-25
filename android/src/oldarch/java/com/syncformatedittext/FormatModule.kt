@@ -1,5 +1,7 @@
 package com.syncformatedittext
 
+import android.util.Log
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -12,9 +14,15 @@ class FormatModule(reactContext: ReactApplicationContext) :
 
     override fun getName(): String = NAME
 
-    @ReactMethod(isBlockingSynchronousMethod = true)
-    fun install() {
-        FormatModuleImpl.instance?.install()
+    @ReactMethod
+    fun install(promise: Promise) {
+        try {
+            FormatModuleImpl.instance?.install()
+            promise.resolve(null)
+        } catch (e: Exception) {
+            Log.w("FormatModule", "install failed: ${e.message}")
+            promise.reject("INSTALL_FAILED", e.message, e)
+        }
     }
 
     companion object {

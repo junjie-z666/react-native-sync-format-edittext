@@ -11,10 +11,14 @@ static void installFormatModule(jsi::Runtime& runtime, const std::shared_ptr<Cal
   auto hostObject = std::make_shared<FormatHostObject>(callInvoker);
   FormatHostObject::setInstance(hostObject.get());
 
-  runtime.global().setProperty(
-      runtime,
-      "__formatModule",
-      jsi::Object::createFromHostObject(runtime, std::move(hostObject)));
+  try {
+    runtime.global().setProperty(
+        runtime,
+        "__formatModule",
+        jsi::Object::createFromHostObject(runtime, std::move(hostObject)));
+  } catch (...) {
+    FormatHostObject::setInstance(nullptr);
+  }
 }
 
 } // namespace facebook::react
@@ -27,11 +31,26 @@ Java_com_syncformatedittext_FormatModuleImpl_nativeInstall(
     jclass clazz,
     jlong jsiRuntimeRef,
     jobject callInvokerHolder) {
+  if (jsiRuntimeRef == 0 || !callInvokerHolder) return;
+
   auto runtime = reinterpret_cast<facebook::jsi::Runtime*>(jsiRuntimeRef);
   auto invoker = facebook::jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>{
       reinterpret_cast<facebook::react::CallInvokerHolder::javaobject>(callInvokerHolder)};
-  auto callInvoker = invoker->cthis()->getCallInvoker();
-  facebook::react::installFormatModule(*runtime, callInvoker);
+
+  std::shared_ptr<facebook::react::CallInvoker> callInvoker;
+  try {
+    callInvoker = invoker->cthis()->getCallInvoker();
+  } catch (...) {
+    return;
+  }
+
+  if (!callInvoker) return;
+
+  try {
+    callInvoker->invokeSync([runtime, callInvoker](facebook::jsi::Runtime&) {
+      facebook::react::installFormatModule(*runtime, callInvoker);
+    });
+  } catch (...) {}
 }
 
 JNIEXPORT jstring JNICALL
