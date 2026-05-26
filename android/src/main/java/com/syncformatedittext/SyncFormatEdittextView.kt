@@ -3,7 +3,10 @@ package com.syncformatedittext
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.KeyListener
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.inputmethod.EditorInfo
 import com.facebook.react.views.textinput.ReactEditText
 
 class SyncFormatEdittextView(context: Context) : ReactEditText(context) {
@@ -13,6 +16,27 @@ class SyncFormatEdittextView(context: Context) : ReactEditText(context) {
   private var lastFormattedCursorPos = 0
   private var onFormatListener: ((String, Int) -> Unit)? = null
   var formatModule: FormatModuleImpl? = null
+
+  private fun shouldUsePasswordTransformation(): Boolean {
+    return inputType and EditorInfo.TYPE_MASK_CLASS == EditorInfo.TYPE_CLASS_TEXT &&
+      inputType and EditorInfo.TYPE_MASK_VARIATION and EditorInfo.TYPE_TEXT_VARIATION_PASSWORD != 0
+  }
+
+  private fun ensurePasswordTransformation() {
+    if (shouldUsePasswordTransformation() && transformationMethod !is PasswordTransformationMethod) {
+      transformationMethod = PasswordTransformationMethod.getInstance()
+    }
+  }
+
+  override fun setInputType(type: Int) {
+    super.setInputType(type)
+    ensurePasswordTransformation()
+  }
+
+  override fun setKeyListener(input: KeyListener?) {
+    super.setKeyListener(input)
+    ensurePasswordTransformation()
+  }
 
   init {
     addTextChangedListener(object : TextWatcher {

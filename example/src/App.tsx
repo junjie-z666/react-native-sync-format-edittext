@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { SyncFormatEdittextView } from 'react-native-sync-format-edittext';
+import { SyncFormatEdittextView } from '@azsxdc12356/react-native-sync-format-edittext';
 
 function formatPhone(text: string, cursorPos: number) {
   const beforeCursor = text.slice(0, cursorPos);
@@ -39,10 +39,28 @@ function formatLettersWithTextInput(text: string) {
   return text.replace(/[^a-zA-Z]/g, '');
 }
 
+function formatPhoneMask(text: string, cursorPos: number) {
+  const digits = text.replace(/\D/g, '').slice(0, 11);
+  let formatted = '';
+  if (digits.length <= 3) {
+    formatted = digits;
+  } else if (digits.length <= 7) {
+    formatted = `${digits.slice(0, 3)}****${digits.slice(3)}`;
+  } else {
+    formatted = `${digits.slice(0, 3)}****${digits.slice(7)}`;
+  }
+  return {
+    text: formatted,
+    cursorPos: Math.min(cursorPos, formatted.length),
+  };
+}
+
 export default function App() {
   const [nativeLetters, setNativeLetters] = useState('');
   const [syncLetters, setSyncLetters] = useState('');
   const [phone, setPhone] = useState('');
+  const [maskedPhone, setMaskedPhone] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <View style={styles.container}>
@@ -79,6 +97,28 @@ export default function App() {
         style={styles.input}
       />
       <Text style={styles.preview}>{phone}</Text>
+
+      <Text style={styles.label}>手机号脱敏 138****8000</Text>
+      <SyncFormatEdittextView
+        value={maskedPhone}
+        format={formatPhoneMask}
+        onChangeText={setMaskedPhone}
+        placeholder="13800138000"
+        keyboardType="number-pad"
+        style={styles.input}
+      />
+      <Text style={styles.preview}>{maskedPhone}</Text>
+
+      <Text style={styles.label}>密码输入 (secureTextEntry)</Text>
+      <SyncFormatEdittextView
+        value={password}
+        format={(text) => ({ text, cursorPos: text.length })}
+        onChangeText={setPassword}
+        placeholder="输入密码"
+        secureTextEntry={true}
+        style={styles.input}
+      />
+      <Text style={styles.preview}>密码长度: {password.length}</Text>
     </View>
   );
 }

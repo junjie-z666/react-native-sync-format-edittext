@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-sync-format-edittext": ["./src/index"]
+      "@azsxdc12356/react-native-sync-format-edittext": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
