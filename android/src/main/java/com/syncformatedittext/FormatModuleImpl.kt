@@ -41,16 +41,9 @@ class FormatModuleImpl(private val reactContext: ReactApplicationContext) {
 
         private fun parseFormatResult(json: String, fallbackText: String, fallbackCursor: Int): FormatResult {
             return try {
-                val textMatch = Regex("\"text\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"").find(json)
-                val cursorMatch = Regex("\"cursorPos\"\\s*:\\s*(\\d+)").find(json)
-                val parsedText = textMatch?.groupValues?.get(1)
-                    ?.replace("\\\"", "\"")
-                    ?.replace("\\\\", "\\")
-                    ?.replace("\\n", "\n")
-                    ?.replace("\\r", "\r")
-                    ?.replace("\\t", "\t")
-                    ?: fallbackText
-                val parsedCursor = cursorMatch?.groupValues?.get(1)?.toIntOrNull() ?: fallbackCursor
+                val jsonObject = org.json.JSONObject(json)
+                val parsedText = if (jsonObject.has("text")) jsonObject.getString("text") else fallbackText
+                val parsedCursor = if (jsonObject.has("cursorPos")) jsonObject.getInt("cursorPos") else fallbackCursor
                 FormatResult(parsedText, parsedCursor)
             } catch (e: Exception) {
                 FormatResult(fallbackText, fallbackCursor)

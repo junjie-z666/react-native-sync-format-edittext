@@ -1,6 +1,6 @@
 {
   "name": "@azsxdc12356/react-native-sync-format-edittext",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React Native sync format input — flicker-free real-time text formatting via JSI synchronous calls",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

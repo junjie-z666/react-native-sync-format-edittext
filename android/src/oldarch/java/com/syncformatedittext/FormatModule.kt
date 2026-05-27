@@ -6,16 +6,16 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.turbomodule.core.interfaces.TurboModule
 
 @ReactModule(name = FormatModule.NAME)
 class FormatModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), TurboModule {
+    ReactContextBaseJavaModule(reactContext) {
 
     override fun getName(): String = NAME
 
     @ReactMethod
     fun install(promise: Promise) {
+      Log.i("FormatModule", "old arch install: ")
         try {
             FormatModuleImpl.instance?.install()
             promise.resolve(null)

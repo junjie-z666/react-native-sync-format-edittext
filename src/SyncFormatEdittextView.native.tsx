@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 import {
   findNodeHandle,
-  TurboModuleRegistry,
   type NativeSyntheticEvent,
   type TextInputProps,
 } from 'react-native';
 import SyncFormatEdittextViewNativeComponent from './SyncFormatEdittextViewNativeComponent';
+import NativeFormatModule from './NativeFormatModule';
 
 type FormatFn = (
   text: string,
@@ -25,10 +25,7 @@ export type SyncFormatEditTextProps = TextInputProps & {
 // Install JSI bindings on first use
 const installPromise: Promise<void> = (() => {
   try {
-    const fmtModule = TurboModuleRegistry.getEnforcing(
-      'FormatModule'
-    ) as unknown as { install(): Promise<void> };
-    return fmtModule.install();
+    return NativeFormatModule.install();
   } catch (e) {
     console.warn('FormatModule install failed:', e);
     return Promise.reject(e);
@@ -50,18 +47,18 @@ export function SyncFormatEdittextView({
     let mounted = true;
     const currentRef = viewRef.current;
 
+    const formatModule = (globalThis as any).__formatModule as
+      | {
+          setFormat(viewTag: number, fn: FormatFn): void;
+          removeFormat(viewTag: number): void;
+        }
+      | undefined;
+    const tag = findNodeHandle(viewRef.current);
+    // TODO: 2026/5/27 installPromise执行过一次后就设置为null，后续判断是null就直接注册，不用then，可能涉及测试热更新和reload是否有问题。
     installPromise.then(() => {
       if (!mounted || !viewRef.current) return;
-
-      const formatModule = (globalThis as any).__formatModule as
-        | {
-            setFormat(viewTag: number, fn: FormatFn): void;
-            removeFormat(viewTag: number): void;
-          }
-        | undefined;
       if (!formatModule) return;
 
-      const tag = findNodeHandle(viewRef.current);
       if (tag) {
         formatModule.setFormat(tag, format);
       }
@@ -69,11 +66,7 @@ export function SyncFormatEdittextView({
 
     return () => {
       mounted = false;
-      const formatModule = (globalThis as any).__formatModule as
-        | { removeFormat(viewTag: number): void }
-        | undefined;
       if (!formatModule || !currentRef) return;
-      const tag = findNodeHandle(currentRef);
       if (tag) {
         formatModule.removeFormat(tag);
       }

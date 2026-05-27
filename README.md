@@ -19,13 +19,9 @@ React Native 同步格式化输入框 — 无闪烁的实时文本格式化
 
 ## 演示效果
 
-**原生 TextInput 格式化 — 闪烁明显**
-
-![原生格式化](./docs/native-format.gif)
-
-**SyncFormatEditText — 无闪烁**
-
-![同步格式化](./docs/sync-format.gif)
+| **原生 TextInput 格式化 — 闪烁明显** | **SyncFormatEditText — 无闪烁** |
+|---|---|
+| ![原生格式化](./docs/native-format.gif) | ![同步格式化](./docs/sync-format.gif) |
 
 ## 安装
 
@@ -58,6 +54,114 @@ function formatDigits(text: string, cursorPos: number) {
   style={styles.input}
 />
 ```
+## 待办
+
+- [ ] 另一个分支feat_use_event是不使用jsi的方式，用纯事件的异步方式来做，现在只能做到不闪烁，但是还有很多bug
+
+## 整体流程架构
+
+- 详细介绍可以看我的[掘金文章](https://juejin.cn/user/712139263718983)
+
+### 初始化链路
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant JS as JS层
+    participant TM as TurboModule
+    participant KT as Kotlin层
+    participant CP as C++层
+
+    JS->>TM: TurboModuleRegistry.getEnforcing('FormatModule').install()
+    TM->>KT: 获取JSI Runtime和CallInvokerHolder
+    KT->>CP: JNI调用nativeInstall()
+    CP->>CP: 保存callInvoker，并注册__formatModule
+    Note over JS,CP: 组件mount后
+    JS->>CP: __formatModule.setFormat(tag, fn)
+    CP->>CP: 存入formatFns_[viewTag]
+```
+
+关键点：
+
+*   `install()` 只在 App 生命周期执行一次，通过模块级 `installPromise` 保证
+*   `setFormat` 在组件 mount 时注册，组件 unmount 时通过 `removeFormat` 清理
+*   C++ 层用 `unordered_map<int, shared_ptr<jsi::Function>>` 存储函数，key 是 viewTag
+
+### 运行时链路
+
+用户输入时，数据从原生到 JS 再返回原生的完整流程：
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant V as View视图
+    participant KT as Kotlin层
+    participant CP as C++层
+    participant JSF as JS格式化函数
+
+    U->>V: 输入文字
+    V->>KT: TextWatcher.onTextChanged
+    KT->>KT: 记录光标位置
+    V->>KT: afterTextChanged触发格式化
+    KT->>CP: nativeFormatText JNI调用
+    CP->>JSF: invokeSync JSI同步调用
+    JSF-->>CP: 返回{text, cursorPos}
+    CP-->>KT: 返回JSON字符串
+    KT-->>V: 返回FormatResult
+    V->>V: s.replace()替换文本
+    V->>U: 显示格式化后的文本
+```
+
+整条链路是**同步的**。从 TextWatcher 触发到文本替换完成，都在同一个 UI 线程事件循环中，没有异步等待，所以不会闪烁。
+
+
+**防递归机制**：`afterTextChanged` 中调用 `s.replace()` 会再次触发 TextWatcher。C++ 层通过 `isFormatting` 标志位阻止递归：
+
+```kotlin
+override fun afterTextChanged(s: Editable?) {
+    if (isFormatting) return  // 正在格式化，跳过递归
+    // ... 执行格式化 ...
+    isFormatting = true
+    s?.replace(0, s.length, result.text)  // 会再次触发 TextWatcher
+    // 但因为 isFormatting == true，递归调用直接 return
+    isFormatting = false
+}
+```
+
+**防循环机制**：JS 层通过 `value` prop 回写时，`lastFormattedText` 跳过重复值：
+
+```kotlin
+if (currentText == lastFormattedText && selectionStart == lastFormattedCursorPos) {
+    onFormatListener?.invoke(currentText, lastFormattedCursorPos)
+    return
+}
+```
+
+
+
+### 新老架构兼容
+
+React Native 从 0.68 开始引入新架构（Fabric + TurboModule）最低应该能支持到0.76（因为codeGen在这里有一次改版），但很多项目仍在使用老架构。本组件通过 `sourceSets` 实现同时支持：
+
+```groovy
+// android/build.gradle
+sourceSets {
+  if (rootProject.hasProperty("newArchEnabled") &&
+      rootProject.getProperty("newArchEnabled") == "true") {
+    main.java.srcDirs += "src/newarch/java"
+  } else {
+    main.java.srcDirs += "src/oldarch/java"
+  }
+}
+```
+
+核心差异：
+
+*   **新架构**：`FormatModule` 继承 CodeGen 生成的 `NativeFormatModuleSpec`，`ViewManager` 使用 `UIManagerHelper` 派发事件
+*   **老架构**：`FormatModule` 继承 `ReactContextBaseJavaModule`，`ViewManager` 使用 `UIManagerModule` 获取 dispatcher
+
+共享的 `FormatModuleImpl` 和 `SyncFormatEdittextView` 放在 `src/main/java/` 下，不区分架构。
 
 ## API
 

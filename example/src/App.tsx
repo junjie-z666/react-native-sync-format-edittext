@@ -92,7 +92,6 @@ export default function App() {
         value={phone}
         format={formatPhone}
         onChangeText={setPhone}
-        placeholder="13800138000"
         keyboardType="number-pad"
         style={styles.input}
       />
@@ -103,21 +102,20 @@ export default function App() {
         value={maskedPhone}
         format={formatPhoneMask}
         onChangeText={setMaskedPhone}
-        placeholder="13800138000"
-        keyboardType="number-pad"
         style={styles.input}
       />
       <Text style={styles.preview}>{maskedPhone}</Text>
 
       <Text style={styles.label}>密码输入 (secureTextEntry)</Text>
-      <SyncFormatEdittextView
-        value={password}
-        format={(text) => ({ text, cursorPos: text.length })}
-        onChangeText={setPassword}
-        placeholder="输入密码"
-        secureTextEntry={true}
-        style={styles.input}
-      />
+      {maskedPhone.length > 5 && (
+        <SyncFormatEdittextView
+          value={password}
+          onChangeText={setPassword}
+          placeholder="输入密码"
+          secureTextEntry={true}
+          style={styles.input}
+        />
+      )}
       <Text style={styles.preview}>密码长度: {password.length}</Text>
     </View>
   );
