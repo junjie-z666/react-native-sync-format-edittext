@@ -60,7 +60,7 @@ function formatDigits(text: string, cursorPos: number) {
 
 ## 整体流程架构
 
-- 详细介绍可以看我的[掘金文章](https://juejin.cn/user/712139263718983)
+- 详细介绍可以看我的[掘金文章](https://juejin.cn/post/7644508441374588937)
 
 ### 初始化链路
 
@@ -142,7 +142,7 @@ if (currentText == lastFormattedText && selectionStart == lastFormattedCursorPos
 
 ### 新老架构兼容
 
-React Native 从 0.68 开始引入新架构（Fabric + TurboModule）最低应该能支持到0.76（因为codeGen在这里有一次改版），但很多项目仍在使用老架构。本组件通过 `sourceSets` 实现同时支持：
+React Native 从 0.68 开始引入新架构（Fabric + TurboModule），最低应该能支持到 0.76（因为 Codegen 在这里有一次改版），但很多项目仍在使用老架构。本组件通过 `sourceSets` 实现同时支持：
 
 ```groovy
 // android/build.gradle
@@ -156,10 +156,82 @@ sourceSets {
 }
 ```
 
-核心差异：
+#### 原生 View 的桥接方式
 
-*   **新架构**：`FormatModule` 继承 CodeGen 生成的 `NativeFormatModuleSpec`，`ViewManager` 使用 `UIManagerHelper` 派发事件
-*   **老架构**：`FormatModule` 继承 `ReactContextBaseJavaModule`，`ViewManager` 使用 `UIManagerModule` 获取 dispatcher
+JS 层通过 `codegenNativeComponent` 声明原生组件，新老架构共用同一套 JS 接口：
+
+```ts
+export default codegenNativeComponent<NativeProps>('SyncFormatEdittextView');
+```
+
+原生层根据架构分别实现。新架构下 `ViewManager` 和 `Package` 需要额外标注 `ReactModule`：
+
+```kotlin
+// src/newarch/.../SyncFormatEdittextViewManager.kt
+@ReactModule(name = SyncFormatEdittextViewManager.NAME)
+class SyncFormatEdittextViewManager : ReactTextInputManager() {
+  override fun getName(): String = NAME
+
+  override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
+    return SyncFormatEdittextView(context)
+  }
+}
+
+// src/newarch/.../SyncFormatEdittextViewPackage.kt
+class SyncFormatEdittextViewPackage : BaseReactPackage() {
+  override fun createViewManagers(...): List<ViewManager<*, *>> { ... }
+
+  override fun getReactModuleInfoProvider() = ReactModuleInfoProvider { ... }
+}
+```
+
+老架构下继承的是 `ReactPackage`，不需要 `ReactModuleInfoProvider`：
+
+```kotlin
+// src/oldarch/.../SyncFormatEdittextViewManager.kt
+class SyncFormatEdittextViewManager : ReactTextInputManager() {
+  override fun getName(): String = NAME
+
+  override fun createViewInstance(context: ThemedReactContext): SyncFormatEdittextView {
+    return SyncFormatEdittextView(context)
+  }
+}
+
+// src/oldarch/.../SyncFormatEdittextViewPackage.kt
+class SyncFormatEdittextViewPackage : ReactPackage {
+  override fun createViewManagers(...): List<ViewManager<*, *>> { ... }
+
+  override fun createNativeModules(...): List<NativeModule> { ... }
+}
+```
+
+#### TurboModule 的注册差异
+
+新架构下 `FormatModule` 继承 Codegen 生成的 `NativeFormatModuleSpec`，并标注 `@DoNotStrip` 防止 ProGuard 剔除：
+
+```kotlin
+// src/newarch/.../FormatModule.kt
+class FormatModule(reactContext: ReactApplicationContext) :
+    NativeFormatModuleSpec(reactContext) {
+
+    @ReactMethod
+    @DoNotStrip
+    override fun install(promise: Promise) { ... }
+}
+```
+
+老架构下继承 `ReactContextBaseJavaModule`：
+
+```kotlin
+// src/oldarch/.../FormatModule.kt
+@ReactModule(name = FormatModule.NAME)
+class FormatModule(reactContext: ReactApplicationContext) :
+    ReactContextBaseJavaModule(reactContext) {
+
+    @ReactMethod
+    fun install(promise: Promise) { ... }
+}
+```
 
 共享的 `FormatModuleImpl` 和 `SyncFormatEdittextView` 放在 `src/main/java/` 下，不区分架构。
 
